@@ -1,0 +1,86 @@
+[
+    {
+      "id": 1,
+      "director": "Alejandro Doria",
+      "titulo": "Esperando la Carroza",
+      "precio": 1000,
+      "imagen": "carroza.jpg"
+    },
+    {
+      "id": 2,
+      "director": "Juan José Campanella",
+      "titulo": "El secreto de sus ojos",
+      "precio": 1000,
+      "imagen": "secreto.jpg"
+    },
+    {
+      "id": 3,
+      "director": "Luis Ortega",
+      "titulo": "El ángel",
+      "precio": 1000,
+      "imagen": "angel.jpg"
+    },
+    {
+      "id": 4,
+      "director": "Juan Szifron",
+      "titulo": "Relatos Salvajes",
+      "precio": 1000,
+      "imagen": "salvajes.jpg"
+    },
+    {
+      "id": 5,
+      "director": "Gastón Duprat",
+      "titulo": "El ciudadano Ilustre",
+      "precio": 1000,
+      "imagen": "ciudadano.jpg"
+    },
+    {
+      "id": 6,
+      "director": "Fabián Bielinsky",
+      "titulo": "Nueve reinas",
+      "precio": 1000,
+      "imagen": "reinas.jpg"
+    },
+    {
+      "id": 7,
+      "director": "Lucas Santa Ana",
+      "titulo": "Yo Adolescente",
+      "precio": 1000,
+      "imagen": "adolescente.jpg"
+    },
+    {
+      "id": 8,
+      "director": "Santiago Mitre",
+      "titulo": "Argentina 1985",
+      "precio": 1000,
+      "imagen": "argentina.jpg"
+    },
+    {
+      "id": 9,
+      "director": "Juan José Campanella",
+      "titulo": "Metegol",
+      "precio": 1000,
+      "imagen": "metegol.jpg"
+    },
+    {
+      "id": 10,
+      "director": "Sebastián Schindel",
+      "titulo": "El patrón, radiografía de un crimen",
+      "precio": 1000,
+      "imagen": "patron.jpg"
+    },
+    {
+      "id": 11,
+      "director": "Juan Pablo Buscarini",
+      "titulo": "El ratón Pérez",
+      "precio": 1000,
+      "imagen": "raton.jpg"
+    },
+    {
+      "id": 12,
+      "director": "Ariel Winograd",
+      "titulo": "El robo del siglo",
+      "precio": 1000,
+      "imagen": "robo.jpg"
+    }
+  ]
