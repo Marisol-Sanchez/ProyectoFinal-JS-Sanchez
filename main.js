@@ -1,28 +1,39 @@
 
 //Construimos la class de peliculas
 class Pelicula{
-   constructor(id, director, titulo, precio, imagen){
+   constructor(id, director, titulo, precio, imagen, enDescuento = false){
       this.id = id,
       this.director = director,
       this.titulo = titulo,
-      this.precio = precio,
+      this.precio = parseFloat(precio),
       this.imagen = imagen
+      this.enDescuento = enDescuento; // Nueva propiedad para indicar si está en descuento o no
    }
 }
 
 const cargarCartelera = async () => {
    const res = await fetch("peliculas.json");
    const data = await res.json();
+
+   // Obtener el día actual usando Luxon
+  const diaActual = DateTime.now().weekday;
  
    for (let pelicula of data) {
+      let enDescuento = false;
+
+   // Verificar si el día actual es lunes, miércoles o viernes
+   if (diaActual === 1 || diaActual === 4 || diaActual === 5) {
+      enDescuento = true;
+   }
+   
      let peliculaData = new Pelicula(
        pelicula.id,
        pelicula.director,
        pelicula.titulo,
        pelicula.precio,
-       pelicula.imagen
+       pelicula.imagen,
+       enDescuento
      );
- 
      cartelera.push(peliculaData);
    }
    localStorage.setItem("cartelera", JSON.stringify(cartelera));
@@ -44,62 +55,13 @@ const iniciarApp = async () => {
      await cargarCartelera(); // Esperar a que se complete la carga de la cartelera
    }
  
-   // Llamar a la función para mostrar la cartelera en el DOM
+   // Llamamos a la función para mostrar la cartelera en el DOM
    mostrarCartelera(cartelera);
+   console.log(cartelera)
 };
  
-// Llamar a la función para iniciar la aplicación
+// Llamamos a la función para iniciar
 iniciarApp();
-
-
-
-
-
-
-//DOM con array de objetos
-let precioTotal = document.getElementById("precioTotal");
-
-//Recorremos la cartelera para imprimir en pantalla las peliculas
-function mostrarCartelera(array){
-   let peliculasDiv = document.getElementById("peliculas")
-   peliculasDiv.innerHTML = ``
-   for(let pelicula of array ){
-      let nuevaPeliculaDiv = document.createElement("div")
-      nuevaPeliculaDiv.className = "col-12 col-md-6 col-lg-4 my-2";
-      nuevaPeliculaDiv.innerHTML = `<div id="${pelicula.id}" class="card" style="width: 18rem;">
-                                    <img class="card-img-top img-fluid" style="height: 200px;" src="assets/${pelicula.imagen}" alt="${pelicula.titulo} de ${pelicula.director}">
-                                    <div class="card-body">
-                                       <h4 class="card-title">${pelicula.titulo}</h4>
-                                       <p>Director: ${pelicula.director}</p>
-                                       <p class="">Precio por entrada: ${pelicula.precio}</p>
-                                    <button id="agregarBtn${pelicula.id}" class="btn btn-outline-primary">Agregar al carrito una entrada</button>
-                                    </div>
-                                 </div>`;
-
-      peliculasDiv.appendChild(nuevaPeliculaDiv)
-
-      let agregarBtn = document.getElementById(`agregarBtn${pelicula.id}`)
-      console.log(agregarBtn)
-
-      agregarBtn.addEventListener("click", () => {
-      console.log(`Se ha agregado una entrada para la pelicula ${pelicula.titulo} en el carrito`)
-      agregarAlCarrito(pelicula);
-      })
-   }
-}
-mostrarCartelera(cartelera)   
-
-
-
-//Agregué luxon para manejo de días de las películas
-const DateTime = luxon.DateTime
-
-let fecha = document.getElementById("fecha")
-const ahora = DateTime.now()
-let fechaMostrar =  ahora.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY)
-  
-//Formato:
-console.log(ahora.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY))
 
 
 
@@ -147,17 +109,85 @@ function agregarPelicula(array) {
 }
 
 
-// Función para calcular el total de la compra
-function calcularTotalCompra(carrito) {
+
+
+
+//Recorremos la cartelera para imprimir en pantalla las peliculas
+function mostrarCartelera(array){
+   let peliculasDiv = document.getElementById("peliculas")
+   peliculasDiv.innerHTML = ``
+   for(let pelicula of array ){
+      let nuevaPeliculaDiv = document.createElement("div")
+      nuevaPeliculaDiv.className = "col-12 col-md-6 col-lg-4 my-2";
+      nuevaPeliculaDiv.innerHTML = `<div id="${pelicula.id}" class="card" style="width: 18rem;">
+                                    <img class="card-img-top img-fluid" style="height: 200px;" src="assets/${pelicula.imagen}" alt="${pelicula.titulo} de ${pelicula.director}">
+                                    <div class="card-body">
+                                       <h4 class="card-title">${pelicula.titulo}</h4>
+                                       <p>Director: ${pelicula.director}</p>
+                                       <p class="">Precio por entrada: ${pelicula.precio}</p>
+                                    <button id="agregarBtn${pelicula.id}" class="btn btn-outline-primary">Agregar al carrito una entrada</button>
+                                    </div>
+                                    </div>`;
+
+      peliculasDiv.appendChild(nuevaPeliculaDiv)
+
+      let agregarBtn = document.getElementById(`agregarBtn${pelicula.id}`)
+      console.log(agregarBtn)
+
+      agregarBtn.addEventListener("click", () => {
+      console.log(`Se ha agregado una entrada para la pelicula ${pelicula.titulo} en el carrito`)
+      agregarAlCarrito(pelicula);
+      })
+   }
+}
+mostrarCartelera(cartelera)   
+
+//Usamos luxon para chequear si es día de descuento o no
+const DateTime = luxon.DateTime;
+const ahora = DateTime.now();
+const diaActual = ahora.toLocal().weekday; 
+console.log(ahora.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY))
+
+
+
+function obtenerPrecio(pelicula) {
+   return pelicula.precio; // Mantener el precio regular de la película
+ }
+ 
+ function calcularTotalCompra(carrito) {
    // Si el carrito está vacío, el total es 0
    if (carrito.length === 0) {
-      return 0;
+     return 0;
    }
-  // Calcular el total sumando los precios de las entradas de las películas en el carrito
-  const total = carrito.reduce((accumulator, pelicula) => accumulator + pelicula.precio, 0);
-  return total;
-}
-
+ 
+   // Inicializamos una variable para llevar el total de la compra sin descuento
+   let totalSinDescuento = 0;
+ 
+   // Recorremos el carrito y calculamos el total sin aplicar descuento a cada película
+   for (let pelicula of carrito) {
+     totalSinDescuento += obtenerPrecio(pelicula);
+   }
+ 
+   // Si el día actual es lunes, jueves o viernes, y el total sin descuento es mayor o igual a 500, aplicamos el descuento
+   const diaActual = DateTime.now().weekday;
+   if ((diaActual === 1 || diaActual === 4 || diaActual === 5) && totalSinDescuento >= 500) {
+     Toastify({
+       text: "¡Hoy tienes descuento!",
+       duration: 2000,
+       gravity: "top",
+       style: {
+         background: "green",
+         color: "#fff",
+       },
+     }).showToast();
+ 
+     return totalSinDescuento - 500;
+   }
+ 
+   return totalSinDescuento;
+ }
+ 
+ 
 
 
 // Variable para indicar si se realizó una compra exitosa
@@ -178,7 +208,12 @@ if (localStorage.getItem("carrito")) {
   
 // Función para agregar entradas de una película al carrito
 function agregarAlCarrito(pelicula) {
+
   let carritoDiv = document.getElementById("carrito");
+
+  // Crear una nueva copia del objeto película para evitar modificar la lista original
+  let peliculaEnCarrito = { ...pelicula };
+  peliculaEnCarrito.enDescuento = obtenerPrecio(pelicula) !== pelicula.precio; // Actualizamos enDescuento
 
   // Crear una nueva card para la película
   let nuevaPeliculaDiv = document.createElement("div");
@@ -210,10 +245,17 @@ function agregarAlCarrito(pelicula) {
       color: "#fff", 
     }, 
    }).showToast();
+
+   // Actualizar el total en pantalla si el elemento existe
+  const totalCompra = calcularTotalCompra(carrito);
+  const precioTotal = document.getElementById("precioTotal");
+  if (precioTotal) {
+    precioTotal.innerText = `Total: ${totalCompra} pesos`;
+  }
 }
 
-  
-  
+
+ 
 
 // Evento que se ejecuta cuando el botón de comprar es clickeado
 if (comprarBtn) {
@@ -221,40 +263,39 @@ if (comprarBtn) {
       // Verificar si el carrito está vacío antes de realizar la compra
       let carritoDiv = document.getElementById("carrito");
       if (carritoDiv.innerHTML.trim() === '') {
-         // Mostrar alerta de carrito vacío utilizando SweetAlert2
-         Swal.fire({
-         icon: 'error',
-         title: 'Carrito vacío',
-         text: 'Agrega entradas al carrito antes de comprar.',
+        // Mostrar alerta de carrito vacío utilizando SweetAlert2
+        Swal.fire({
+          icon: 'error',
+          title: 'Carrito vacío',
+          text: 'Agrega entradas al carrito antes de comprar.',
+        });
+        return; // Detener la compra si el carrito está vacío
+      }
+    
+      // Calcular el total de la compra actualizado
+      const totalCompra = calcularTotalCompra(carrito);
+    
+      Swal.fire({
+        icon: 'success',
+        title: 'Compra exitosa',
+        text: `¡Que disfrutes la función! El total es de ${totalCompra} pesos.`,
       });
-         return; // Detener la compra si el carrito está vacío
+    
+      // Vaciar el carrito en el LocalStorage después de la compra
+      carrito = [];
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+    
+      // Deshabilitar el botón de comprar después de la compra exitosa
+      comprarBtn.disabled = true;
+      compraExitosa = true;
+    
+      // Ocultar y vaciar el carrito
+      carritoDiv.style.display = "none";
+      carritoDiv.innerHTML = '';
+    });
 }
 
-     
-// Calcular el total de la compra actualizado
-const totalCompra = calcularTotalCompra(carrito);
 
-
-// Mostrar el mensaje de compra exitosa
-Swal.fire({
-   icon: 'success',
-   title: 'Compra exitosa',
-   text: `¡Que disfrutes la función! El total es de ${totalCompra} pesos`,
-});
-
-// Vaciar el carrito en el LocalStorage después de la compra
-carrito = [];
-localStorage.setItem("carrito", JSON.stringify(carrito));
-
-// Deshabilitar el botón de comprar después de la compra exitosa
-   comprarBtn.disabled = true;
-   compraExitosa = true;
-
-// Ocultar y vaciar el carrito
-   carritoDiv.style.display = "none";
-   carritoDiv.innerHTML = '';
-});
-}
 
 
 // Evento que se ejecuta cuando el botón de cancelar compra es clickeado
